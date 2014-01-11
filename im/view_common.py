@@ -20,3 +20,4 @@ def MyHttpResponse(ret, statuscode = 0):
         _status = 200
     return HttpResponse(json.dumps(ret),  content_type="application/json", status=_status)
 
+ 

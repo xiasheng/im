@@ -51,17 +51,26 @@ class status(models.Model):
     text = models.CharField(max_length=1000)
     lat = models.DecimalField(max_digits=10, decimal_places=4)
     lng = models.DecimalField(max_digits=10, decimal_places=4)
-
+    file_id = models.CharField(max_length=100, default='')
+    file_type = models.CharField(max_length=10, default='')
+    
     def __unicode__(self):
       return 'status'     	
    
     def toJSON(self):
       r = {}
+      r['id'] = self.id 
+      r['uid'] = self.user.id      
       r['created_at'] = self.created_at.strftime("%Y-%m-%d %H:%M:%S") 
       r['text'] = self.text
       r['lat'] = '%f' %self.lat
       r['lng'] = '%f' %self.lng  
-      r['uid'] = self.user.id 
+      r['num_forward'] = forward.objects.filter(status=self).count()
+      r['num_like'] = forward.objects.filter(status=self).count()
+      r['num_comment'] = forward.objects.filter(status=self).count()
+      r['file_id'] = self.file_id
+      r['file_type'] = self.file_type
+      
       return r
 
 class comment(models.Model):

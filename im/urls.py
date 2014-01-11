@@ -3,7 +3,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from view_account import RegisterVerify, RegisterConfirm
 from view_auth import Login, Logout, ExternalAuth
-from view_status import PublishStatus, GetStatus
+from view_status import PublishStatus, PublishStatusWithFile, GetStatus, BatchGetStatus, GetUserStatusList, GetUserStatusDetail
+from view_file import UploadFile, DownloadFile
 
 admin.autodiscover()
 
@@ -16,7 +17,14 @@ urlpatterns = patterns('',
     url(r'^auth/login/$', Login),
     url(r'^auth/logout/$', Logout),
     url(r'^auth/external/$', ExternalAuth),
-    url(r'^status/publish_text/$', PublishStatus),
+    url(r'^status/publish/text/$', PublishStatus),
+    url(r'^status/publish/withfile/$', PublishStatusWithFile),
     url(r'^status/show/id/$', GetStatus),
+    url(r'^status/show/ids/$', BatchGetStatus),
+    url(r'^status/show/user_timeline/list/$', GetUserStatusList),
+    url(r'^status/show/user_timeline/detail/$', GetUserStatusDetail),
+    url(r'^file/upload/$', UploadFile),
+    url(r'^file/download/$', DownloadFile),
+
     #url(r'^admin/', include(admin.site.urls)),
 )

@@ -32,8 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
+    #'django.contrib.admin',
+    #'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -96,9 +96,9 @@ CACHES = {
 }
 
 
-logging.basicConfig(
-    level = logging.DEBUG,
-    format = '%(asctime)s %(levelname)s %(message)s',
-    filename = '/var/tmp/django.log',
-    filemode = 'w'
-)
+#logging.basicConfig(
+#    level = logging.DEBUG,
+#    format = '%(asctime)s %(levelname)s %(message)s',
+#    filename = '/var/tmp/django.log',
+#    filemode = 'w'
+#)

@@ -5,7 +5,6 @@ import datetime
 import hashlib
 from django.core.cache import cache
 from view_common import Random_Str, MyHttpResponse
-import logging 
 
 class AuthException(Exception):
     def __init__(self, msg='unauthorized'):
@@ -19,7 +18,6 @@ def gennrateToken(phonenum, uid):
     tokens['rt'] = refresh_token
     tokens['pn'] = phonenum
     tokens['uid'] = uid
-    logging.info('set cache %s' %access_token)
     cache.set(access_token, tokens, 3600)
     return tokens
     
@@ -42,6 +40,7 @@ def Login(request):
         tokens = gennrateToken(_phonenum, _user.id)
         ret['access_token'] = tokens['at']
         ret['refresh_token'] = tokens['rt']
+        ret['uid'] = tokens['uid']
 
     except:
         ret['retcode'] = -1
@@ -73,7 +72,7 @@ def ExternalAuth(request):
         _password = hashlib.md5(request.POST.get('password')).hexdigest().upper()
         u = user_base.objects.get(phonenum=_phonenum, password=_password)
     except:
-        ret['retcode'] = -1
+        ret['retcode'] = -2
         ret['info'] = 'auth failed'
 
     return MyHttpResponse(ret)
