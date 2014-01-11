@@ -113,3 +113,16 @@ class fans(models.Model):
     def __unicode__(self):
     	return 'fans'    	
 
+class account_thirdparty(models.Model):
+    user = models.ForeignKey(user_base)
+    account_type = models.CharField(max_length=100)
+    access_token = models.CharField(max_length=100)
+    uid = models.CharField(max_length=100, default='')
+
+    def toJSON(self):
+        r = {}
+        r['id'] = self.id 
+        r['uid'] = self.uid
+        r['type'] = self.account_type
+        r['access_token'] = self.access_token
+        return r
