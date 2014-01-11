@@ -82,6 +82,14 @@ class comment(models.Model):
     def __unicode__(self):
     	return 'comment'   
 
+    def toJSON(self):
+        r = {}
+        r['uid'] = self.user.id
+        r['sid'] = self.status.id
+        r['text'] = self.text
+        r['created_at'] = self.created_at.strftime("%Y-%m-%d %H:%M:%S") 
+        return r
+
 class like(models.Model):
     user = models.ForeignKey(user_base)
     status = models.ForeignKey(status)

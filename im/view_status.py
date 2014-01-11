@@ -103,11 +103,11 @@ def GetUserStatusList(request):
         _user = user_base(id=_uid)
         _since_id = request.POST.get('since_id', 0)
         _statuses = status.objects.filter(pk__gte=_since_id, user=_user)[:100]
-        _list_statuses = []
+        _ids = []
         for s in _statuses:
-            _list_statuses.append(s.id)
+            _ids.append(s.id)
               
-        ret['statuses_list'] = _list_statuses
+        ret['ids'] = _ids
          
     except AuthException:
         ret['retcode'] = -2

@@ -5,6 +5,7 @@ from view_account import RegisterVerify, RegisterConfirm, GetThirdPartyAccount, 
 from view_auth import Login, Logout, ExternalAuth
 from view_status import PublishStatus, PublishStatusWithFile, GetStatus, BatchGetStatus, GetUserStatusList, GetUserStatusDetail
 from view_file import UploadFile, DownloadFile
+from view_comment import AddComment, DelCommentById, GetCommentById, BatchGetCommentByIds, GetCommentListByStatusId
 
 admin.autodiscover()
 
@@ -27,6 +28,13 @@ urlpatterns = patterns('',
     url(r'^status/show/ids/$', BatchGetStatus),
     url(r'^status/show/user_timeline/list/$', GetUserStatusList),
     url(r'^status/show/user_timeline/detail/$', GetUserStatusDetail),
+
+    url(r'^comment/add/$', AddComment),
+    url(r'^comment/del/$', DelCommentById),
+    url(r'^comment/show/cid/$', GetCommentById),
+    url(r'^comment/show/sid/$', GetCommentListByStatusId),
+    url(r'^comment/show_batch/$', BatchGetCommentByIds),
+
     url(r'^file/upload/$', UploadFile),
     url(r'^file/download/$', DownloadFile),
 
