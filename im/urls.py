@@ -6,6 +6,7 @@ from view_auth import Login, Logout, ExternalAuth
 from view_status import PublishStatus, PublishStatusWithFile, GetStatus, BatchGetStatus, GetUserStatusList, GetUserStatusDetail
 from view_file import UploadFile, DownloadFile
 from view_comment import AddComment, DelCommentById, GetCommentById, BatchGetCommentByIds, GetCommentListByStatusId
+from view_place import GetNearByUserList, GetNearByStatusList, GetNearByPhotoList
 
 admin.autodiscover()
 
@@ -19,9 +20,11 @@ urlpatterns = patterns('',
     url(r'^account/thirdparty/add/$', AddThirdPartyAccount),
     url(r'^account/thirdparty/del/$', DelThirdPartyAccount),
     url(r'^account/thirdparty/update/$', UpdateThirdPartyAccount),
+    
     url(r'^auth/login/$', Login),
     url(r'^auth/logout/$', Logout),
     url(r'^auth/external/$', ExternalAuth),
+
     url(r'^status/publish/text/$', PublishStatus),
     url(r'^status/publish/withfile/$', PublishStatusWithFile),
     url(r'^status/show/id/$', GetStatus),
@@ -34,6 +37,10 @@ urlpatterns = patterns('',
     url(r'^comment/show/cid/$', GetCommentById),
     url(r'^comment/show/sid/$', GetCommentListByStatusId),
     url(r'^comment/show_batch/$', BatchGetCommentByIds),
+
+    url(r'^place/nearby/userlist/$', GetNearByUserList),
+    url(r'^place/nearby/statuslist/$', GetNearByStatusList),
+    url(r'^place/nearby/photolist/$', GetNearByPhotoList),
 
     url(r'^file/upload/$', UploadFile),
     url(r'^file/download/$', DownloadFile),
