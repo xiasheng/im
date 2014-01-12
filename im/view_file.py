@@ -11,15 +11,19 @@ from view_common import Random_Str, MyHttpResponse
 UPLOAD_FILE_PATH = '/var/www/files/'
 
 def SaveFile(file):
+    ext = ''
+    if '.' in file.name:
+        ext = file.name.split('.')[-1]
     tmpname = Random_Str(16)
     f = open(os.path.join(UPLOAD_FILE_PATH, tmpname), 'w+')
     for chunk in file.chunks():
         f.write(chunk)
     f.seek(0)
     hashname = hashlib.md5(f.read()).hexdigest().upper()
-    os.rename(os.path.join(UPLOAD_FILE_PATH, tmpname), os.path.join(UPLOAD_FILE_PATH, hashname))
+    filename = hashname + '.' + ext
+    os.rename(os.path.join(UPLOAD_FILE_PATH, tmpname), os.path.join(UPLOAD_FILE_PATH, filename))
     f.close()
-    return hashname   
+    return filename   
 
 def UploadFile(request):
     ret = {'retcode': 0, 'info': 'success'}   
@@ -27,18 +31,14 @@ def UploadFile(request):
     try:
         _uid = GetAuthUserId(request)
         _file = request.FILES.get('file')
-        _type = request.FILES.get('type', '')
-        
+        #_type = request.FILES.get('type', '')
+
         fid = SaveFile(_file)
         ret['fid'] = fid
-        if _type == 'image':
-            ret['fid_s'] = fid  
-            ret['fid_m'] = fid
-            ret['fid_o'] = fid
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'auth failed'
-    except BufferError:
+    except:
         ret['retcode'] = -1
         ret['info'] = 'UploadFile failed'
 
