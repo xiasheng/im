@@ -10,9 +10,9 @@ def PublishStatus(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _text = request.POST.get('text')
-        _lat = request.POST.get('lat', 0.0)
-        _lng = request.POST.get('lng', 0.0)
+        _text = request.REQUEST.get('text')
+        _lat = request.REQUEST.get('lat', 0.0)
+        _lng = request.REQUEST.get('lng', 0.0)
         _user = user_base(id=_uid)
         _status = status(user=_user, text=_text, lat=_lat, lng=_lng)
         _status.save()
@@ -31,9 +31,9 @@ def PublishStatusWithFile(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _text = request.POST.get('text')
-        _lat = request.POST.get('lat', 0.0)
-        _lng = request.POST.get('lng', 0.0)
+        _text = request.REQUEST.get('text')
+        _lat = request.REQUEST.get('lat', 0.0)
+        _lng = request.REQUEST.get('lng', 0.0)
         _file = request.FILES.get('file')
         _type = request.FILES.get('type', '')
         _user = user_base(id=_uid)
@@ -60,7 +60,7 @@ def GetStatus(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _status_id = request.POST.get('id')        
+        _status_id = request.REQUEST.get('id')        
         _status = status.objects.get(id=_status_id)
         ret['status'] = _status.toJSON()
          
@@ -78,7 +78,7 @@ def BatchGetStatus(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _status_ids = request.POST.get('ids', []).split(',') 
+        _status_ids = request.REQUEST.get('ids', []).split(',') 
         _statuses = status.objects.filter(pk__in=_status_ids)
         _list_statuses = []
         for s in _statuses:
@@ -99,9 +99,9 @@ def GetUserStatusList(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid_self = GetAuthUserId(request)
-        _uid = request.POST.get('uid', _uid_self)
+        _uid = request.REQUEST.get('uid', _uid_self)
         _user = user_base(id=_uid)
-        _since_id = request.POST.get('since_id', 0)
+        _since_id = request.REQUEST.get('since_id', 0)
         _statuses = status.objects.filter(pk__gte=_since_id, user=_user)[:100]
         _ids = []
         for s in _statuses:
@@ -122,9 +122,9 @@ def GetUserStatusDetail(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid_self = GetAuthUserId(request)
-        _uid = request.POST.get('uid', _uid_self)        
+        _uid = request.REQUEST.get('uid', _uid_self)        
         _user = user_base(id=_uid)
-        _since_id = request.POST.get('since_id', 0)
+        _since_id = request.REQUEST.get('since_id', 0)
         _statuses = status.objects.filter(pk__gte=_since_id, user=_user)[:10]
         _list_statuses = []
         for s in _statuses:

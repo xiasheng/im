@@ -36,7 +36,7 @@ def checkPhoneNum(phonenum):
 def RegisterVerify(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
-        _phonenum = request.POST.get('phonenum')
+        _phonenum = request.REQUEST.get('phonenum')
         if False == checkPhoneNum(_phonenum):
             ret['retcode'] = -1
             ret['info'] = 'phonenum must be 11 bit digits'
@@ -57,10 +57,10 @@ def RegisterVerify(request):
 def RegisterConfirm(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
-        _phonenum = request.POST.get('phonenum')
-        _authcode = request.POST.get('authcode')
-        _sid = request.POST.get('sid')
-        _password = hashlib.md5(request.POST.get('password')).hexdigest().upper()
+        _phonenum = request.REQUEST.get('phonenum')
+        _authcode = request.REQUEST.get('authcode')
+        _sid = request.REQUEST.get('sid')
+        _password = hashlib.md5(request.REQUEST.get('password')).hexdigest().upper()
         if False == checkAuthCode(_sid, _phonenum, _authcode):
             ret['retcode'] = -1
             ret['info'] = 'authcode error'
@@ -100,9 +100,9 @@ def AddThirdPartyAccount(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _type = request.POST.get('type_tp')
-        _at_tp = request.POST.get('access_token_tp')
-        _uid_tp = request.POST.get('uid_tp')
+        _type = request.REQUEST.get('type_tp')
+        _at_tp = request.REQUEST.get('access_token_tp')
+        _uid_tp = request.REQUEST.get('uid_tp')
         _user = user_base(id=_uid)
         _account_tp = account_thirdparty(user=_user, account_type=_type, access_token=_at_tp, uid=_uid_tp)
         _account_tp.save()
@@ -121,7 +121,7 @@ def DelThirdPartyAccount(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _id = request.POST.get('id')
+        _id = request.REQUEST.get('id')
         _user = user_base(id=_uid)
         _account = account_thirdparty.objects.get(user=_user, id=_id)
         _account.delete()
@@ -140,12 +140,12 @@ def UpdateThirdPartyAccount(request):
     try:
         _uid = GetAuthUserId(request)
         _user = user_base(id=_uid)
-        _id = request.POST.get('id')
+        _id = request.REQUEST.get('id')
         _account = account_thirdparty.objects.get(user=_user, id=_id)
 
-        _account.account_type = request.POST.get('type_tp', _account.account_type)
-        _account.access_token = request.POST.get('access_token_tp', _account.access_token)
-        _account.uid = request.POST.get('uid_tp', _account.uid)
+        _account.account_type = request.REQUEST.get('type_tp', _account.account_type)
+        _account.access_token = request.REQUEST.get('access_token_tp', _account.access_token)
+        _account.uid = request.REQUEST.get('uid_tp', _account.uid)
         _account.save()
          
     except AuthException:

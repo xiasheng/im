@@ -50,7 +50,7 @@ def DownloadFile(request):
 
     try:
         _uid = GetAuthUserId(request)
-        _fid = request.POST.get('fid')
+        _fid = request.REQUEST.get('fid')
         f = open(os.path.join(UPLOAD_FILE_PATH, _fid))
         response = HttpResponse(content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename=' +_fid

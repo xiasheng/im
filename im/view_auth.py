@@ -26,12 +26,12 @@ def Login(request):
     ret = {'retcode': 0, 'info': 'success'}   
   
     try:
-        _phonenum = request.POST.get('phonenum')
-        _password = hashlib.md5(request.POST.get('password')).hexdigest().upper()
-        _source = request.POST.get('source', 'Android')
-        _ip_addr = request.POST.get('ip_addr', '127.0.0.1')
-        _lat = request.POST.get('lat', 0.0)
-        _lng = request.POST.get('lng', 0.0)
+        _phonenum = request.REQUEST.get('phonenum')
+        _password = hashlib.md5(request.REQUEST.get('password')).hexdigest().upper()
+        _source = request.REQUEST.get('source', 'Android')
+        _ip_addr = request.REQUEST.get('ip_addr', '127.0.0.1')
+        _lat = request.REQUEST.get('lat', 0.0)
+        _lng = request.REQUEST.get('lng', 0.0)
         
         _user = user_base.objects.get(phonenum=_phonenum, password=_password)
         
@@ -52,8 +52,8 @@ def Logout(request):
     ret = {'retcode': 0, 'info': 'success'}
 
     try:
-        _phonenum = request.POST.get('phonenum')    
-        _access_token = request.POST.get('access_token')
+        _phonenum = request.REQUEST.get('phonenum')    
+        _access_token = request.REQUEST.get('access_token')
         tokens = cache.get(_access_token)           
 
         if tokens['pn'] == _phonenum:
@@ -68,8 +68,8 @@ def ExternalAuth(request):
     ret = {'retcode': 0, 'info': 'success'}
 
     try:
-        _phonenum = request.POST.get('name')
-        _password = hashlib.md5(request.POST.get('password')).hexdigest().upper()
+        _phonenum = request.REQUEST.get('name')
+        _password = hashlib.md5(request.REQUEST.get('password')).hexdigest().upper()
         u = user_base.objects.get(phonenum=_phonenum, password=_password)
     except:
         ret['retcode'] = -2
@@ -79,7 +79,7 @@ def ExternalAuth(request):
     
 def GetAuthUserId(request):
     try:
-        _access_token = request.POST.get('access_token')
+        _access_token = request.REQUEST.get('access_token')
         tokens = cache.get(_access_token)
         return tokens['uid']  
     except:                     

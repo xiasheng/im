@@ -9,8 +9,8 @@ def AddComment(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _sid = request.POST.get('sid')
-        _text = request.POST.get('text')
+        _sid = request.REQUEST.get('sid')
+        _text = request.REQUEST.get('text')
 
         _user = user_base(id=_uid)
         _status = status(id=_sid)
@@ -32,7 +32,7 @@ def DelCommentById(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _id = request.POST.get('id')
+        _id = request.REQUEST.get('id')
 
         _user = user_base(id=_uid)
 
@@ -52,7 +52,7 @@ def GetCommentById(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _id = request.POST.get('id')
+        _id = request.REQUEST.get('id')
         _comment = comment.objects.get(id=_id)
 
         ret['comment'] = _comment.toJSON()
@@ -70,7 +70,7 @@ def BatchGetCommentByIds(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _ids = request.POST.get('ids', []).split(',') 
+        _ids = request.REQUEST.get('ids', []).split(',') 
         _comments = comment.objects.filter(pk__in=_ids)
 
         _list__comments = []
@@ -92,7 +92,7 @@ def GetCommentListByStatusId(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _sid = request.POST.get('sid')
+        _sid = request.REQUEST.get('sid')
         _status = status(id=_sid)
 
         _comment_list = comment.objects.filter(status=_status)
@@ -116,7 +116,7 @@ def AddLike(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _sid = request.POST.get('sid')
+        _sid = request.REQUEST.get('sid')
 
         _user = user_base(id=_uid)
         _status = status(id=_sid)
