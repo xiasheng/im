@@ -54,12 +54,12 @@ def GetNearByUserList(request):
     return MyHttpResponse(ret)    
 
 def GetNearByStatusList(request):
-    ret = {'retcode': 0, 'info': 'todo'}
+    ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
         _lat = float ( request.REQUEST.get('lat') )
         _lng = float ( request.REQUEST.get('lng') )
-        _dis = float ( request.REQUEST.get('distance', "10.0"))
+        _dis = float ( request.REQUEST.get('range', "10.0"))
 
         (dlat, dlng) = GetNearByCoordinate(_lat, _lng, _dis)
         
