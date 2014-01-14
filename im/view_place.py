@@ -5,9 +5,9 @@ from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
 from view_file import SaveFile
 
-from math import sin, asin, cos, radians, fabs, sqrt
+from math import sin, asin, cos, radians, degrees, fabs, sqrt
 
-EARTH_RADIUS=6371           # 地球平均半径，6371km
+EARTH_RADIUS=6371
 
 def hav(theta):
     s = sin(theta / 2)
@@ -15,8 +15,6 @@ def hav(theta):
 
 def get_distance_hav(lat0, lng0, lat1, lng1):
     global EARTH_RADIUS
-    "用haversine公式计算球面两点间的距离。"
-    # 经纬度转换成弧度
     lat0 = radians(lat0)
     lat1 = radians(lat1)
     lng0 = radians(lng0)
@@ -29,14 +27,15 @@ def get_distance_hav(lat0, lng0, lat1, lng1):
 
     return distance
 
-def GetNearByCoordinate(lng_self, lat_self, distance):
+def GetNearByCoordinate(lat_self, lng_self, distance):
     global EARTH_RADIUS
-    dlng = 2 * asin(sin(distance / (2 * EARTH_RADIUS)) / cos(lat))
-    dlng = degrees(dlng)
-
     dlat = distance / EARTH_RADIUS
     dlat = degrees(dlat)
-    retun (dlng, dlat)
+    
+    dlng = 2 * asin(sin(distance / (2 * EARTH_RADIUS)) / cos(lat_self))
+    dlng = degrees(dlng)
+    
+    return (dlat, dlng)
 
 def GetNearByUserList(request):
     ret = {'retcode': 0, 'info': 'todo'}
@@ -58,17 +57,31 @@ def GetNearByStatusList(request):
     ret = {'retcode': 0, 'info': 'todo'}
     try:
         _uid = GetAuthUserId(request)
-        _lng = request.REQUEST.get('lng')
-        _lat = request.REQUEST.get('lat')
+        _lat = float ( request.REQUEST.get('lat') )
+        _lng = float ( request.REQUEST.get('lng') )
+        _dis = float ( request.REQUEST.get('distance', "10.0"))
 
-        (dlng, dlat) = GetNearByCoordinate(_lng, _lat)
+        (dlat, dlng) = GetNearByCoordinate(_lat, _lng, _dis)
         
-        ret['ids'] = []
+        _statuses = status.objects.filter(lat__gt=_lat-dlat, lat__lt=_lat+dlat, lng__gt=_lng-dlng, lng__lt=_lng+dlng)[:50]
+        
+        _dict_statuses = {}
+        for s in _statuses:
+            d = get_distance_hav(_lat, _lng, s.lat, s.lng)
+            _dict_statuses[s.id] = d
+        
+        _sorted_statuses = sorted(_dict_statuses.items(), key = lambda e: e[1])  
+        
+        _list_statuses = []
+        for s in _sorted_statuses:
+            _list_statuses.append({s[0] : s[1]})   
+                    
+        ret['ids'] = _list_statuses
          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except:
+    except IOError:
         ret['retcode'] = -1
         ret['info'] = 'GetNearByStatusList failed'          
 
