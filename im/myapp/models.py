@@ -51,8 +51,10 @@ class status(models.Model):
     text = models.CharField(max_length=1000)
     lat = models.DecimalField(max_digits=10, decimal_places=4)
     lng = models.DecimalField(max_digits=10, decimal_places=4)
-    file_id = models.CharField(max_length=100, default='')
     file_type = models.CharField(max_length=10, default='')
+    url_pic = models.CharField(max_length=100, default='')
+    url_pic_tn = models.CharField(max_length=100, default='')
+    url_audio = models.CharField(max_length=100, default='')
     
     def __unicode__(self):
       return 'status'     	
@@ -68,9 +70,10 @@ class status(models.Model):
       r['num_forward'] = forward.objects.filter(status=self).count()
       r['num_like'] = forward.objects.filter(status=self).count()
       r['num_comment'] = forward.objects.filter(status=self).count()
-      r['file_id'] = self.file_id
-      r['file_type'] = self.file_type
-      
+      r['url_pic'] = self.url_pic
+      r['url_pic_tn'] = self.url_pic_tn
+      r['url_audio'] = self.url_audio
+      r['file_type'] = self.file_type      
       return r
 
 class comment(models.Model):

@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from myapp.models import user_base, status
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
-from view_file import SaveFile
+from view_file import SaveImage, SaveAudio
 
 def PublishStatus(request):
     ret = {'retcode': 0, 'info': 'success'}
@@ -35,15 +35,22 @@ def PublishStatusWithFile(request):
         _lat = request.REQUEST.get('lat', 0.0)
         _lng = request.REQUEST.get('lng', 0.0)
         _file = request.FILES.get('file')
-        _type = request.FILES.get('type', '')
+        _type = request.FILES.get('type', 'image')
         _user = user_base(id=_uid)
-
-        _fid = SaveFile(_file)
+        _url_pic = ''
+        _url_pic_tn = ''
+        _url_audio = ''
         
-        _status = status(user=_user, text=_text, lat=_lat, lng=_lng, file_id=_fid, file_type=_type)
+        if _type == 'image':
+            (_url_pic, _url_pic_tn) = SaveImage(_file)
+        elif _type == 'audio':
+            _url_audio = SaveAudio(_file)
+        
+        _status = status(user=_user, text=_text, lat=_lat, lng=_lng, file_type=_type, url_pic=_url_pic, url_pic_tn= _url_pic_tn, url_audio=_url_audio)
         _status.save()
         ret['id'] = _status.id
-        ret['fid'] = _fid 
+        ret['url_pic'] = _url_pic
+        ret['url_pic_tn'] = _url_pic_tn 
 
          
     except AuthException:
@@ -51,7 +58,7 @@ def PublishStatusWithFile(request):
         ret['info'] = 'unauthorized'
     except:
         ret['retcode'] = -1
-        ret['info'] = 'publish status failed'          
+        ret['info'] = 'publish status withfile failed'          
 
     return MyHttpResponse(ret)  
 
