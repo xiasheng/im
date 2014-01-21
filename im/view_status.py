@@ -109,13 +109,19 @@ def GetUserStatusList(request):
         _uid = request.REQUEST.get('uid', _uid_self)
         _user = user_base(id=_uid)
         _since_id = request.REQUEST.get('since_id', 0)
-        _statuses = status.objects.filter(pk__gte=_since_id, user=_user)[:100]
+        _max_id = request.REQUEST.get('max_id', 99999999)
+        _count = status.objects.filter(pk__gt=_since_id, pk__lt=_max_id, user=_user).count()
+        _statuses = status.objects.filter(pk__gt=_since_id, pk__lt=_max_id, user=_user).order_by('-id')[:100]
         _ids = []
         for s in _statuses:
             _ids.append(s.id)
               
         ret['ids'] = _ids
-         
+        ret['total_num'] = _count
+        if _count > len(_ids):
+            ret['hasmore'] = 1
+        else:
+            ret['hasmore'] = 0
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
@@ -132,12 +138,19 @@ def GetUserStatusDetail(request):
         _uid = request.REQUEST.get('uid', _uid_self)        
         _user = user_base(id=_uid)
         _since_id = request.REQUEST.get('since_id', 0)
-        _statuses = status.objects.filter(pk__gte=_since_id, user=_user)[:10]
+        _max_id = request.REQUEST.get('max_id', 99999999)
+        _count = status.objects.filter(pk__gt=_since_id, pk__lt=_max_id, user=_user).count()
+        _statuses = status.objects.filter(pk__gt=_since_id, pk__lt=_max_id, user=_user).order_by('-id')[:10]
         _list_statuses = []
         for s in _statuses:
             _list_statuses.append(s.toJSON())
               
         ret['statuses'] = _list_statuses
+        ret['total_num'] = _count
+        if _count > len(_list_statuses):
+            ret['hasmore'] = 1
+        else:
+            ret['hasmore'] = 0   
          
     except AuthException:
         ret['retcode'] = -2
