@@ -32,3 +32,26 @@ END $$
 DELIMITER ;
 
 
+
+set character_set_client=utf8;
+set character_set_connection=utf8;
+set character_set_database=utf8;
+set character_set_results=utf8;
+set character_set_server=utf8;     
+    
+
+    
+ALTER TABLE django_content_type CONVERT TO CHARACTER SET utf8;
+ALTER TABLE django_session CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_account_thirdparty CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_comment CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_fans CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_forward CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_friends CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_like CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_status CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_user_base CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_user_detail CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_user_history CONVERT TO CHARACTER SET utf8;
+ALTER TABLE myapp_user_online CONVERT TO CHARACTER SET utf8;
+
