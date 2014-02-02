@@ -18,7 +18,7 @@ def gennrateToken(phonenum, uid):
     tokens['rt'] = refresh_token
     tokens['pn'] = phonenum
     tokens['uid'] = uid
-    cache.set(access_token, tokens, 3600)
+    cache.set(access_token, tokens, 36000)
     return tokens
     
 

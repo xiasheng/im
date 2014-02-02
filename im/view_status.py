@@ -4,6 +4,8 @@ from myapp.models import user_base, status
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
 from view_file import SaveImage, SaveAudio
+import lbs
+import thread
 
 def PublishStatus(request):
     ret = {'retcode': 0, 'info': 'success'}
@@ -17,6 +19,7 @@ def PublishStatus(request):
         _status = status(user=_user, text=_text, lat=_lat, lng=_lng)
         _status.save()
         ret['id'] = _status.id
+        thread.start_new_thread(lbs.Upload, (_status.id, _lat, _lng))
          
     except AuthException:
         ret['retcode'] = -2
@@ -51,7 +54,7 @@ def PublishStatusWithFile(request):
         ret['id'] = _status.id
         ret['url_pic'] = _url_pic
         ret['url_pic_tn'] = _url_pic_tn 
-
+        lbs.Upload(_status.id, _lat, _lng)
          
     except AuthException:
         ret['retcode'] = -2

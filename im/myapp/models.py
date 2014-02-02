@@ -62,8 +62,10 @@ class status(models.Model):
     def toJSON(self):
       r = {}
       r['id'] = self.id 
-      r['uid'] = self.user.id      
-      r['created_at'] = self.created_at.strftime("%Y-%m-%d %H:%M:%S") 
+      r['uid'] = self.user.id
+      t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+      t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+      r['created_at'] =  int(t2)
       r['text'] = self.text
       r['lat'] = '%f' %self.lat
       r['lng'] = '%f' %self.lng  
