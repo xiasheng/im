@@ -1,12 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from myapp.models import user_base, user_history
+from myapp.models import user_base, user_history, file_status
 import os
 import datetime
 import hashlib
 from view_auth import GetAuthUserId, AuthException
 from view_common import Random_Str, MyHttpResponse
-   
+
 
 UPLOAD_FILE_PATH = '/var/www/files/'
 UPLOAD_BIG_IMAGE_PATH = UPLOAD_FILE_PATH + 'i/b/'
@@ -31,7 +31,7 @@ def SaveImage(file):
     
     url_pic_b = 'http://192.168.77.160/f/i/b/' + hashname
     url_pic_s = 'http://192.168.77.160/f/i/s/' + hashname
-    return (url_pic_b, url_pic_s)
+    return (url_pic_b, url_pic_s, hashname)
   
 def SaveAudio(file):
     ext = ''
@@ -90,8 +90,17 @@ def DownloadFile(request):
     try:
         _uid = GetAuthUserId(request)
         _fid = request.REQUEST.get('fid')
-        f = open(os.path.join(UPLOAD_FILE_PATH, _fid))
-        response = HttpResponse(content_type='application/octet-stream')
+        _type = request.REQUEST.get('type', '')
+        _dir = UPLOAD_FILE_PATH
+        if _type == 'nearby':
+            _dir = UPLOAD_BIG_IMAGE_PATH
+            _file_status = file_status.objects.filter(fid=_fid)
+            _num = _file_status[0].access_num + 1
+            _file_status.update(access_num=_num)
+
+        f = open(os.path.join(_dir, _fid))
+        #content_type='application/octet-stream'
+        response = HttpResponse(content_type='image/jpg') 
         response['Content-Disposition'] = 'attachment; filename=' +_fid
         response.write(f.read())
         f.close()
@@ -99,6 +108,9 @@ def DownloadFile(request):
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'auth failed'
+    except IndexError, IOError:
+        ret['retcode'] = -3
+        ret['info'] = 'file does not exist'    
     except:
         ret['retcode'] = -1
         ret['info'] = 'download file failed'

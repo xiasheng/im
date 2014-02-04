@@ -72,34 +72,42 @@ def InitGeotable(name):
     geotable_id = CreateGeotable(name)
     CreateColumn(geotable_id, 'status id', 'sid', 1)
     CreateColumn(geotable_id, 'time_created', 'time_created', 1)
+    CreateColumn(geotable_id, 'status type', 'stype', 1)
 
-def Upload(sid, lat, lng):
+def Upload(sid, lat, lng, type=1):
     para = {
         'geotable_id' : ID_GEOTABLE,
         'latitude' : lat,
         'longitude' : lng,
         'coord_type' : 1,
         'sid' : sid,
+        'stype': type,
         'time_created' : int(time.time()),
         'ak' : ACCESS_KEY_BD,
     }
     res = requests.post(API_URL_BD['CreatePoi'], data=para)
 
-def Query(lat, lng, radius=10000, timespan=7200, pagenum=0):
+def Query(lat, lng, radius=10000, timespan=7200, pagenum=0, type=0):
     result = {
         'total':0,
         'size':0,
         'content':[]
     }
+
     location = '%f,%f' %(lng, lat)
     ts_now = int(time.time())
+    if type > 0:
+        filter = 'time_created:%d,%d|stype:%d,%d' %(ts_now-timespan, ts_now, type, type)
+    else:
+        filter = 'time_created:%d,%d' %(ts_now-timespan, ts_now)
+
     para = {
         'geotable_id' : ID_GEOTABLE,
         'location' : location,
         'radius' : radius,
         'coord_type' : 1,
         'sortby' : 'distance:1|time_created:-1',
-        'filter' : 'time_created:%d,%d' %(ts_now-timespan, ts_now),
+        'filter' : filter,
         'page_index': pagenum,
         'q' : '',
         'ak' : ACCESS_KEY_BD,
@@ -136,4 +144,7 @@ if __name__ == "__main__":
     InitGeotable('im_status')
     #InitData()
     #Query(10000, 31.343, 117.591)
+    #/geosearch/v3/nearby?ak=a2THEtScvok8jG6IMI7Kn37G&geotable_id=49452&location=117.5469850755,31.352583354522&radius=100000&coord_type=1
+    #/geosearch/v3/nearby?radius=100000.0&ak=a2THEtScvok8jG6IMI7Kn37G&geotable_id=49452&location=117.546985%2C31.338963&coord_type=1
+    #
     pass

@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from myapp.models import user_base, status
+from myapp.models import user_base, status, file_status
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
 from view_file import SaveImage, SaveAudio
@@ -16,10 +16,12 @@ def PublishStatus(request):
         _lat = request.REQUEST.get('lat', 0.0)
         _lng = request.REQUEST.get('lng', 0.0)
         _user = user_base(id=_uid)
+        _stype = 1
         _status = status(user=_user, text=_text, lat=_lat, lng=_lng)
         _status.save()
         ret['id'] = _status.id
-        thread.start_new_thread(lbs.Upload, (_status.id, _lat, _lng))
+        if _lat > 0 and _lng > 0:
+            thread.start_new_thread(lbs.Upload, (_status.id, _lat, _lng, _stype))
          
     except AuthException:
         ret['retcode'] = -2
@@ -45,21 +47,28 @@ def PublishStatusWithFile(request):
         _url_audio = ''
         
         if _type == 'image':
-            (_url_pic, _url_pic_tn) = SaveImage(_file)
+            _stype = 2
+            (_url_pic, _url_pic_tn, _fid) = SaveImage(_file)
         elif _type == 'audio':
+            _stype = 3
             _url_audio = SaveAudio(_file)
         
-        _status = status(user=_user, text=_text, lat=_lat, lng=_lng, file_type=_type, url_pic=_url_pic, url_pic_tn= _url_pic_tn, url_audio=_url_audio)
+        _status = status(user=_user, text=_text, lat=_lat, lng=_lng, type=_stype)
         _status.save()
+        _file_status = file_status(user=_user, status=_status, fid=_fid, file_type=_type, url_pic=_url_pic, url_pic_tn= _url_pic_tn, url_audio=_url_audio)
+        _file_status.save()
+
         ret['id'] = _status.id
         ret['url_pic'] = _url_pic
         ret['url_pic_tn'] = _url_pic_tn 
-        lbs.Upload(_status.id, _lat, _lng)
+        ret['fid'] = _fid
+        if _lat > 0 and _lng > 0:
+            thread.start_new_thread(lbs.Upload, (_status.id, _lat, _lng, _stype))
          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except:
+    except :
         ret['retcode'] = -1
         ret['info'] = 'publish status withfile failed'          
 

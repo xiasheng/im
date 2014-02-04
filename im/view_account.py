@@ -67,6 +67,10 @@ def RegisterConfirm(request):
         else:
             u = user_base(phonenum=_phonenum, password=_password)
             u.save()
+            tokens = GenerateToken(_phonenum, u.id)
+            ret['access_token'] = tokens['at']
+            ret['refresh_token'] = tokens['rt']
+            ret['uid'] = tokens['uid']
     except:
         ret['retcode'] = -1
         ret['info'] = 'register user failed'

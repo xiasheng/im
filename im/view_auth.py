@@ -10,7 +10,7 @@ class AuthException(Exception):
     def __init__(self, msg='unauthorized'):
         self.msg = msg
 
-def gennrateToken(phonenum, uid):
+def GenerateToken(phonenum, uid):
     tokens = {}
     access_token = Random_Str()
     refresh_token = Random_Str()    
@@ -18,7 +18,7 @@ def gennrateToken(phonenum, uid):
     tokens['rt'] = refresh_token
     tokens['pn'] = phonenum
     tokens['uid'] = uid
-    cache.set(access_token, tokens, 36000)
+    cache.set(access_token, tokens, 3600)
     return tokens
     
 
@@ -37,7 +37,7 @@ def Login(request):
         
         #update user history
         user_history.objects.create(user=_user, source=_source, ip_addr=_ip_addr, lat=_lat, lng=_lng)
-        tokens = gennrateToken(_phonenum, _user.id)
+        tokens = GenerateToken(_phonenum, _user.id)
         ret['access_token'] = tokens['at']
         ret['refresh_token'] = tokens['rt']
         ret['uid'] = tokens['uid']
