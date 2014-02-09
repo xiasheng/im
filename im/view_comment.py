@@ -111,6 +111,38 @@ def GetCommentListByStatusId(request):
 
     return MyHttpResponse(ret)
 
+def GetCommentDetailByStatusId(request):
+    ret = {'retcode': 0, 'info': 'success', 'hasmore': 0}
+    try:
+        _uid = GetAuthUserId(request)
+        _sid = request.REQUEST.get('sid')
+        _pagenum = request.REQUEST.get('pagenum', 0)
+        _pagenum = int(_pagenum)
+
+        _status = status(id=_sid)
+
+        _total = comment.objects.filter(status=_status).count()
+        _comments = comment.objects.filter(status=_status).order_by('-id')[_pagenum*10:(_pagenum+1)*10]
+        _comments_list = []
+        for c in _comments:
+            _comments_list.append(c.toJSON())
+
+        ret['comments'] = _comments_list
+        ret['total'] = _total
+        ret['pagenum'] = _pagenum
+        ret['size'] = len(_comments)
+        if _total/10 > _pagenum:
+            ret['hasmore'] = 1
+         
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'unauthorized'
+    except IOError:
+        ret['retcode'] = -1
+        ret['info'] = 'GetCommentListByStatusId failed'          
+
+    return MyHttpResponse(ret)
+
 def AddLike(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:

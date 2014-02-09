@@ -112,7 +112,9 @@ class comment(models.Model):
         r['uid'] = self.user.id
         r['sid'] = self.status.id
         r['text'] = self.text
-        r['created_at'] = self.created_at.strftime("%Y-%m-%d %H:%M:%S") 
+        t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+        t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+        r['created_at'] =  int(t2)        
         return r
 
 class like(models.Model):
