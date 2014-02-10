@@ -28,7 +28,8 @@ API_URL_BD = {
 
 }
 
-ID_GEOTABLE = 49452
+ID_GEOTABLE_STATUS = 49452
+ID_GEOTABLE_USER = 49769
 
 def CreateGeotable(name):
     para = {
@@ -68,15 +69,18 @@ def CreateColumn(geotable_id, name, key, type):
         print 'create column %s failed' %key
         print res.content
 
-def InitGeotable(name):
-    geotable_id = CreateGeotable(name)
+def InitGeotable():
+    geotable_id = CreateGeotable('im_status')
     CreateColumn(geotable_id, 'status id', 'sid', 1)
     CreateColumn(geotable_id, 'time_created', 'time_created', 1)
     CreateColumn(geotable_id, 'status type', 'stype', 1)
+    
+    geotable_id = CreateGeotable('im_user')
+    CreateColumn(geotable_id, 'user id', 'userid', 1)
 
-def Upload(sid, lat, lng, type=1):
+def UploadStatus(sid, lat, lng, type=1):
     para = {
-        'geotable_id' : ID_GEOTABLE,
+        'geotable_id' : ID_GEOTABLE_STATUS,
         'latitude' : lat,
         'longitude' : lng,
         'coord_type' : 1,
@@ -87,7 +91,7 @@ def Upload(sid, lat, lng, type=1):
     }
     res = requests.post(API_URL_BD['CreatePoi'], data=para)
 
-def Query(lat, lng, radius=10000, timespan=7200, pagenum=0, type=0):
+def QueryStatus(lat, lng, radius=10000, timespan=7200, pagenum=0, type=0):
     result = {
         'total':0,
         'size':0,
@@ -102,7 +106,7 @@ def Query(lat, lng, radius=10000, timespan=7200, pagenum=0, type=0):
         filter = 'time_created:%d,%d' %(ts_now-timespan, ts_now)
 
     para = {
-        'geotable_id' : ID_GEOTABLE,
+        'geotable_id' : ID_GEOTABLE_STATUS,
         'location' : location,
         'radius' : radius,
         'coord_type' : 1,
@@ -123,10 +127,67 @@ def Query(lat, lng, radius=10000, timespan=7200, pagenum=0, type=0):
             result['content'].append( (r['sid'], r['distance']) )  
     else:
         print 'Query failed'
-        print res.content
+        #print res.content
 
-    print result
+    #print result
     return result    
+
+
+def UploadUser(uid, lat, lng):
+    para = {
+        'geotable_id' : ID_GEOTABLE_USER,
+        'latitude' : lat,
+        'longitude' : lng,
+        'coord_type' : 1,
+        'userid' : uid,
+        'ak' : ACCESS_KEY_BD,
+    }
+    res = requests.post(API_URL_BD['CreatePoi'], data=para)
+    #print res.content
+
+def DeleteUser(uid):
+    para = {
+        'geotable_id' : ID_GEOTABLE_USER,
+        'userid' : uid,
+        'ak' : ACCESS_KEY_BD,
+    }
+    res = requests.post(API_URL_BD['DeletePoi'], data=para)
+    #print res.content
+
+def QueryUser(lat, lng, radius=10000, pagenum=0):
+    result = {
+        'total':0,
+        'size':0,
+        'content':[]
+    }
+
+    location = '%f,%f' %(lng, lat)
+    
+    para = {
+        'geotable_id' : ID_GEOTABLE_USER,
+        'location' : location,
+        'radius' : radius,
+        'coord_type' : 1,
+        'sortby' : 'distance:1',
+        'page_index': pagenum,
+        'q' : '',
+        'ak' : ACCESS_KEY_BD,
+    }
+    res = requests.get(API_URL_BD['SearchNearby'], params=para)
+    print res.content
+    res_json = json.loads(res.content)
+    if res_json.has_key('status') and res_json['status'] == 0:
+        results = res_json['contents']
+        result['total'] = res_json['total']
+        result['size'] = res_json['size']
+        for r in results:
+            result['content'].append( (r['userid'], r['distance']) )  
+    else:
+        print 'Query failed'
+        #print res.content
+
+    #print result
+    return result
 
 def InitData():
     Upload(1, 31.343440009473, 117.59198752882)
@@ -141,7 +202,10 @@ def InitData():
     Upload(10, 31.341440009473, 117.59098752882)
 
 if __name__ == "__main__":
-    InitGeotable('im_status')
+    #InitGeotable()
+    #UploadUser(100, 31.343440009473, 117.59198752882)
+    #DeleteUser(100)
+    #QueryUser(31.343440009473, 117.59198752882)
     #InitData()
     #Query(10000, 31.343, 117.591)
     #/geosearch/v3/nearby?ak=a2THEtScvok8jG6IMI7Kn37G&geotable_id=49452&location=117.5469850755,31.352583354522&radius=100000&coord_type=1

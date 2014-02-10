@@ -12,16 +12,16 @@ def PublishStatus(request):
     try:
         _uid = GetAuthUserId(request)
         
-        _text = request.REQUEST.get('text')
-        _lat = request.REQUEST.get('lat', 0.0)
-        _lng = request.REQUEST.get('lng', 0.0)
+        _text = request.REQUEST.get('text', '')
+        _lat = float (request.REQUEST.get('lat', 0.0))
+        _lng = float (request.REQUEST.get('lng', 0.0))
         _user = user_base(id=_uid)
         _stype = 1
         _status = status(user=_user, text=_text, lat=_lat, lng=_lng)
         _status.save()
         ret['id'] = _status.id
         if _lat > 0 and _lng > 0:
-            thread.start_new_thread(lbs.Upload, (_status.id, _lat, _lng, _stype))
+            thread.start_new_thread(lbs.UploadStatus, (_status.id, _lat, _lng, _stype))
          
     except AuthException:
         ret['retcode'] = -2
@@ -37,8 +37,8 @@ def PublishStatusWithFile(request):
     try:
         _uid = GetAuthUserId(request)
         _text = request.REQUEST.get('text')
-        _lat = request.REQUEST.get('lat', 0.0)
-        _lng = request.REQUEST.get('lng', 0.0)
+        _lat = float (request.REQUEST.get('lat', 0.0))
+        _lng = float (request.REQUEST.get('lng', 0.0))
         _file = request.FILES.get('file')
         _type = request.FILES.get('type', 'image')
         _user = user_base(id=_uid)
@@ -63,7 +63,7 @@ def PublishStatusWithFile(request):
         ret['url_pic_tn'] = _url_pic_tn 
         ret['fid'] = _fid
         if _lat > 0 and _lng > 0:
-            thread.start_new_thread(lbs.Upload, (_status.id, _lat, _lng, _stype))
+            thread.start_new_thread(lbs.UploadStatus, (_status.id, _lat, _lng, _stype))
          
     except AuthException:
         ret['retcode'] = -2

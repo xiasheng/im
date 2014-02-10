@@ -5,6 +5,8 @@ import datetime
 import hashlib
 from django.core.cache import cache
 from view_common import Random_Str, MyHttpResponse
+import lbs
+import thread
 
 class AuthException(Exception):
     def __init__(self, msg='unauthorized'):
@@ -18,7 +20,7 @@ def GenerateToken(phonenum, uid):
     tokens['rt'] = refresh_token
     tokens['pn'] = phonenum
     tokens['uid'] = uid
-    cache.set(access_token, tokens, 3600)
+    cache.set(access_token, tokens, 24 * 3600)
     return tokens
     
 
@@ -30,19 +32,22 @@ def Login(request):
         _password = hashlib.md5(request.REQUEST.get('password')).hexdigest().upper()
         _source = request.REQUEST.get('source', 'Android')
         _ip_addr = request.REQUEST.get('ip_addr', '127.0.0.1')
-        _lat = request.REQUEST.get('lat', 0.0)
-        _lng = request.REQUEST.get('lng', 0.0)
+        _lat = float (request.REQUEST.get('lat', 0.0))
+        _lng = float (request.REQUEST.get('lng', 0.0))
         
         _user = user_base.objects.get(phonenum=_phonenum, password=_password)
         
         #update user history
-        user_history.objects.create(user=_user, source=_source, ip_addr=_ip_addr, lat=_lat, lng=_lng)
+        #user_history.objects.create(user=_user, source=_source, ip_addr=_ip_addr, lat=_lat, lng=_lng)
         tokens = GenerateToken(_phonenum, _user.id)
         ret['access_token'] = tokens['at']
         ret['refresh_token'] = tokens['rt']
         ret['uid'] = tokens['uid']
+        
+        if _lat > 0 and _lng > 0:
+            thread.start_new_thread(lbs.UploadUser, (_user.id, _lat, _lng))
 
-    except:
+    except :
         ret['retcode'] = -1
         ret['info'] = 'login failed'
 
@@ -58,8 +63,10 @@ def Logout(request):
 
         if tokens['pn'] == _phonenum:
             cache.delete(_access_token)
+        
+        thread.start_new_thread(lbs.DeleteUser, (tokens['uid'], ))
                         
-    except:
+    except :
         pass
 
     return MyHttpResponse(ret)

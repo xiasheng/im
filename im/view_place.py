@@ -7,14 +7,35 @@ from view_file import SaveFile
 
 import lbs
 
-
 def GetNearByUserList(request):
-    ret = {'retcode': 0, 'info': 'todo'}
+    ret = {'retcode': 0, 
+           'info': 'success',
+           'size' : 0,
+           'hasmore' : 1,
+           'users' : [],
+           }
     try:
         _uid = GetAuthUserId(request)
         
-        ret['users'] = []
-         
+        _lat = float ( request.REQUEST.get('lat') )
+        _lng = float ( request.REQUEST.get('lng') )
+        _dis = int ( request.REQUEST.get('range', 10000))
+        _page_num = int ( request.REQUEST.get('pagenum', 0))
+
+        res = lbs.QueryUser(_lat, _lng, _dis, _page_num)
+        
+        _total = res['total']
+        _size = res['size']
+        if _total <= 10 or _size == 0:
+            ret['hasmore'] = 0
+
+        #ret['total'] = _total
+        for s in res['content']:
+            if _uid == s[0]:
+                _size -= 1
+                continue
+            ret['users'].append({'uid':s[0], 'distance':s[1]}) 
+        ret['size'] = _size         
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
@@ -39,7 +60,7 @@ def GetNearByStatusList(request):
         _ts = int(request.REQUEST.get('timespan', 7200))
         _page_num = int ( request.REQUEST.get('pagenum', 0))
 
-        res = lbs.Query(_lat, _lng, _dis, _ts, _page_num)
+        res = lbs.QueryStatus(_lat, _lng, _dis, _ts, _page_num)
         
         _total = res['total']
         _size = res['size']
@@ -48,7 +69,7 @@ def GetNearByStatusList(request):
 
         #ret['total'] = _total
         for s in res['content']:
-            ret['statuses'].append({s[0]:s[1]}) 
+            ret['statuses'].append({'sid':s[0], 'distance':s[1]}) 
         ret['size'] = _size
 
     except AuthException:
@@ -76,7 +97,7 @@ def GetNearByStatusDetail(request):
         _ts = int(request.REQUEST.get('timespan', 7200))
         _page_num = int ( request.REQUEST.get('pagenum', 0))
 
-        res = lbs.Query(_lat, _lng, _dis, _ts, _page_num)
+        res = lbs.QueryStatus(_lat, _lng, _dis, _ts, _page_num)
         
         _total = res['total']
         _size = res['size']
@@ -130,7 +151,7 @@ def GetNearByPhotoList(request):
         _page_num = int ( request.REQUEST.get('page_num', 0))
         _type = 2
 
-        res = lbs.Query(_lat, _lng, _dis, _ts, _page_num, _type)
+        res = lbs.QueryStatus(_lat, _lng, _dis, _ts, _page_num, _type)
         
         _total = res['total']
         _size = res['size']
