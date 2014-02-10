@@ -1,48 +1,19 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from myapp.models import user_base, status
+from myapp.models import user_base, status, file_status
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
 from view_file import SaveFile
 
-from math import sin, asin, cos, radians, degrees, fabs, sqrt
+import lbs
 
-EARTH_RADIUS=6371
-
-def hav(theta):
-    s = sin(theta / 2)
-    return s * s
-
-def get_distance_hav(lat0, lng0, lat1, lng1):
-    global EARTH_RADIUS
-    lat0 = radians(lat0)
-    lat1 = radians(lat1)
-    lng0 = radians(lng0)
-    lng1 = radians(lng1)
-
-    dlng = fabs(lng0 - lng1)
-    dlat = fabs(lat0 - lat1)
-    h = hav(dlat) + cos(lat0) * cos(lat1) * hav(dlng)
-    distance = 2 * EARTH_RADIUS * asin(sqrt(h))
-
-    return distance
-
-def GetNearByCoordinate(lat_self, lng_self, distance):
-    global EARTH_RADIUS
-    dlat = distance / EARTH_RADIUS
-    dlat = degrees(dlat)
-    
-    dlng = 2 * asin(sin(distance / (2 * EARTH_RADIUS)) / cos(lat_self))
-    dlng = degrees(dlng)
-    
-    return (dlat, dlng)
 
 def GetNearByUserList(request):
     ret = {'retcode': 0, 'info': 'todo'}
     try:
         _uid = GetAuthUserId(request)
         
-        ret['ids'] = []
+        ret['users'] = []
          
     except AuthException:
         ret['retcode'] = -2
@@ -54,50 +25,141 @@ def GetNearByUserList(request):
     return MyHttpResponse(ret)    
 
 def GetNearByStatusList(request):
-    ret = {'retcode': 0, 'info': 'success'}
+    ret = {'retcode': 0, 
+           'info': 'success',
+           'size' : 0,
+           'hasmore' : 1,
+           'statuses' : [],
+           }
     try:
         _uid = GetAuthUserId(request)
         _lat = float ( request.REQUEST.get('lat') )
         _lng = float ( request.REQUEST.get('lng') )
-        _dis = float ( request.REQUEST.get('range', "10.0"))
+        _dis = int ( request.REQUEST.get('range', 10000))
+        _ts = int(request.REQUEST.get('timespan', 7200))
+        _page_num = int ( request.REQUEST.get('pagenum', 0))
 
-        (dlat, dlng) = GetNearByCoordinate(_lat, _lng, _dis)
+        res = lbs.Query(_lat, _lng, _dis, _ts, _page_num)
         
-        _statuses = status.objects.filter(lat__gt=_lat-dlat, lat__lt=_lat+dlat, lng__gt=_lng-dlng, lng__lt=_lng+dlng)[:50]
+        _total = res['total']
+        _size = res['size']
+        if _total <= 10 or _size == 0:
+            ret['hasmore'] = 0
+
+        #ret['total'] = _total
+        for s in res['content']:
+            ret['statuses'].append({s[0]:s[1]}) 
+        ret['size'] = _size
+
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'unauthorized'
+    except :
+        ret['retcode'] = -1
+        ret['info'] = 'GetNearByStatusList failed'          
+
+    return MyHttpResponse(ret) 
+
+
+def GetNearByStatusDetail(request):
+    ret = {'retcode': 0, 
+           'info': 'success',
+           'total': 0,
+           'size' : 0,
+           'hasmore' : 1,
+           }
+    try:
+        _uid = GetAuthUserId(request)
+        _lat = float ( request.REQUEST.get('lat') )
+        _lng = float ( request.REQUEST.get('lng') )
+        _dis = int ( request.REQUEST.get('range', 10000))
+        _ts = int(request.REQUEST.get('timespan', 7200))
+        _page_num = int ( request.REQUEST.get('pagenum', 0))
+
+        res = lbs.Query(_lat, _lng, _dis, _ts, _page_num)
         
-        _dict_statuses = {}
-        for s in _statuses:
-            d = get_distance_hav(_lat, _lng, s.lat, s.lng)
-            _dict_statuses[s.id] = d
-        
-        _sorted_statuses = sorted(_dict_statuses.items(), key = lambda e: e[1])  
-        
+        _total = res['total']
+        _size = res['size']
+        if _total <= 10 or _size == 0:
+            ret['hasmore'] = 0
+
+        sids = []
+        distances = []
+        for s in res['content']:
+            sids.append(s[0])
+            distances.append(s[1])
+        _statuses = status.objects.filter(pk__in=sids)
+
         _list_statuses = []
-        for s in _sorted_statuses:
-            _list_statuses.append({s[0] : s[1]})   
+        i = 0
+        for s in _statuses:
+            if _uid == s.user.id:
+                _size -= 1
+                continue
+            _s = s.toJSON()
+            _s['distance'] = distances[i]
+            _list_statuses.append(_s)
+            i += 1
                     
-        ret['ids'] = _list_statuses
+        ret['statuses'] = _list_statuses
+        #ret['total'] = _total
+        ret['size'] = _size
          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
     except:
         ret['retcode'] = -1
-        ret['info'] = 'GetNearByStatusList failed'          
+        ret['info'] = 'GetNearByStatusDetail failed'          
 
     return MyHttpResponse(ret) 
 
+
 def GetNearByPhotoList(request):
-    ret = {'retcode': 0, 'info': 'todo'}
+    ret = {'retcode': 0, 
+           'info': 'success',
+           'size' : 0,
+           'hasmore' : 1,
+           }
     try:
         _uid = GetAuthUserId(request)
+        _lat = float ( request.REQUEST.get('lat') )
+        _lng = float ( request.REQUEST.get('lng') )
+        _dis = int ( request.REQUEST.get('range', 10000))
+        _ts = int(request.REQUEST.get('timespan', 7200))
+        _page_num = int ( request.REQUEST.get('page_num', 0))
+        _type = 2
+
+        res = lbs.Query(_lat, _lng, _dis, _ts, _page_num, _type)
         
-        ret['ids'] = []
+        _total = res['total']
+        _size = res['size']
+        if _total <= 10 or _size == 0:
+            ret['hasmore'] = 0
+
+        sids = []
+        distances = []
+        for s in res['content']:
+            sids.append(s[0])
+            distances.append(s[1])
+        _photos = file_status.objects.filter(status__in=sids)
+
+        _list_photos = []
+        i = 0
+        for s in _photos:
+            _s = s.toJSON()
+            _s['distance'] = distances[i]
+            _list_photos.append(_s)
+            i += 1
+                    
+        ret['photos'] = _list_photos
+        #ret['total'] = _total
+        ret['size'] = _size
          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except:
+    except :
         ret['retcode'] = -1
         ret['info'] = 'GetNearByPhotoList failed'          
 

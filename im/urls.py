@@ -5,8 +5,8 @@ from view_account import RegisterVerify, RegisterConfirm, GetThirdPartyAccount, 
 from view_auth import Login, Logout, ExternalAuth
 from view_status import PublishStatus, PublishStatusWithFile, GetStatus, BatchGetStatus, GetUserStatusList, GetUserStatusDetail
 from view_file import UploadFile, DownloadFile
-from view_comment import AddComment, DelCommentById, GetCommentById, BatchGetCommentByIds, GetCommentListByStatusId
-from view_place import GetNearByUserList, GetNearByStatusList, GetNearByPhotoList
+from view_comment import AddComment, DelCommentById, GetCommentById, BatchGetCommentByIds, GetCommentDetailByStatusId
+from view_place import GetNearByUserList, GetNearByStatusList, GetNearByPhotoList, GetNearByStatusDetail
 
 admin.autodiscover()
 
@@ -34,13 +34,15 @@ urlpatterns = patterns('',
 
     url(r'^comment/add/$', AddComment),
     url(r'^comment/del/$', DelCommentById),
-    url(r'^comment/show/cid/$', GetCommentById),
-    url(r'^comment/show/sid/$', GetCommentListByStatusId),
-    url(r'^comment/show_batch/$', BatchGetCommentByIds),
+    url(r'^comment/show/$', GetCommentDetailByStatusId),
+    #url(r'^comment/show/cid/$', GetCommentById),
+    #url(r'^comment/show/sid/$', GetCommentListByStatusId),
+    #url(r'^comment/show_batch/$', BatchGetCommentByIds),
 
-    url(r'^place/nearby/userlist/$', GetNearByUserList),
-    url(r'^place/nearby/statuslist/$', GetNearByStatusList),
-    url(r'^place/nearby/photolist/$', GetNearByPhotoList),
+    url(r'^place/nearby/user/list/$', GetNearByUserList),
+    url(r'^place/nearby/status/list/$', GetNearByStatusList),
+    url(r'^place/nearby/status/detail/$', GetNearByStatusDetail),
+    url(r'^place/nearby/photo/list/$', GetNearByPhotoList),
 
     url(r'^file/upload/$', UploadFile),
     url(r'^file/download/$', DownloadFile),

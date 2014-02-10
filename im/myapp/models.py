@@ -51,10 +51,7 @@ class status(models.Model):
     text = models.CharField(max_length=1000)
     lat = models.DecimalField(max_digits=10, decimal_places=4)
     lng = models.DecimalField(max_digits=10, decimal_places=4)
-    file_type = models.CharField(max_length=10, default='')
-    url_pic = models.CharField(max_length=100, default='')
-    url_pic_tn = models.CharField(max_length=100, default='')
-    url_audio = models.CharField(max_length=100, default='')
+    type = models.IntegerField(default=1)
     
     def __unicode__(self):
       return 'status'     	
@@ -62,19 +59,44 @@ class status(models.Model):
     def toJSON(self):
       r = {}
       r['id'] = self.id 
-      r['uid'] = self.user.id      
-      r['created_at'] = self.created_at.strftime("%Y-%m-%d %H:%M:%S") 
+      r['uid'] = self.user.id
+      t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+      t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+      r['created_at'] =  int(t2)
+      r['type'] = self.type
       r['text'] = self.text
-      r['lat'] = '%f' %self.lat
-      r['lng'] = '%f' %self.lng  
+      r['lat'] = '%.5f' %self.lat
+      r['lng'] = '%.5f' %self.lng  
       r['num_forward'] = forward.objects.filter(status=self).count()
       r['num_like'] = forward.objects.filter(status=self).count()
       r['num_comment'] = forward.objects.filter(status=self).count()
-      r['url_pic'] = self.url_pic
-      r['url_pic_tn'] = self.url_pic_tn
-      r['url_audio'] = self.url_audio
-      r['file_type'] = self.file_type      
+      if self.type > 1:
+        _file =  file_status.objects.get(status=self)
+        r = dict(r, **_file.toJSON())
       return r
+
+class file_status(models.Model):
+    user = models.ForeignKey(user_base)
+    status = models.ForeignKey(status)
+    fid = models.CharField(max_length=100)
+    access_num = models.IntegerField(default=0)
+    file_type = models.CharField(max_length=10, default='')
+    url_pic = models.CharField(max_length=100, default='')
+    url_pic_tn = models.CharField(max_length=100, default='')
+    url_audio = models.CharField(max_length=100, default='')
+
+    def __unicode__(self):
+        return 'file_status' 
+
+    def toJSON(self):
+        r= {}
+        r['fid'] = self.fid
+        r['access_num'] = self.access_num
+        r['url_pic'] = self.url_pic
+        r['url_pic_tn'] = self.url_pic_tn
+        #r['url_audio'] = self.url_audio
+        #r['file_type'] = self.file_type    
+        return r
 
 class comment(models.Model):
     user = models.ForeignKey(user_base)
@@ -90,7 +112,9 @@ class comment(models.Model):
         r['uid'] = self.user.id
         r['sid'] = self.status.id
         r['text'] = self.text
-        r['created_at'] = self.created_at.strftime("%Y-%m-%d %H:%M:%S") 
+        t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+        t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+        r['created_at'] =  int(t2)        
         return r
 
 class like(models.Model):
