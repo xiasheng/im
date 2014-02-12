@@ -8,8 +8,7 @@ import os
 import sys
 from django.core.cache import cache
 from view_common import Random_Str, MyHttpResponse
-from view_auth import GetAuthUserId, AuthException
-
+from view_auth import GetAuthUserId, AuthException, GenerateToken
 
 def getAuthCode(phonenum):
     # get authcode from thirdparty
@@ -71,7 +70,7 @@ def RegisterConfirm(request):
             ret['access_token'] = tokens['at']
             ret['refresh_token'] = tokens['rt']
             ret['uid'] = tokens['uid']
-    except:
+    except AssertionError:
         ret['retcode'] = -1
         ret['info'] = 'register user failed'
 

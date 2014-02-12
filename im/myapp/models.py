@@ -6,6 +6,7 @@ class user_base(models.Model):
     phonenum = models.CharField(max_length=11)
     password = models.CharField(max_length=64)
     created_at = models.DateField(auto_now_add=True)
+    default_profile_id = models.IntegerField()
 
     def __unicode__(self):
     	return 'user_base'
@@ -22,6 +23,50 @@ class user_detail(models.Model):
 
     def __unicode__(self):
     	return 'user_detail'
+
+class user_profile(models.Model):
+    user = models.ForeignKey(user_base)
+    name = models.CharField(max_length=64)
+    gender = models.CharField(max_length=64)   
+    age = models.IntegerField(default=1)
+    addr = models.CharField(max_length=64)
+    category = models.CharField(max_length=64)   
+    url_image = models.CharField(max_length=128)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __unicode__(self):
+    	return 'user_profile'
+
+    def toJSON(self):
+      r = {}
+      r['id'] = self.id 
+      r['name'] = self.name
+      r['gender'] = self.gender
+      r['age'] = self.age
+      r['addr'] = self.addr      
+      r['category'] = self.category            
+      r['url_image'] = self.url_image
+      t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+      t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+      r['created_at'] =  int(t2)      
+      return r
+
+class user_profile_photowall(models.Model):
+    profile = models.ForeignKey(user_profile)
+    url_photo = models.CharField(max_length=128)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __unicode__(self):
+    	return 'user_profile_photowall'
+
+    def toJSON(self):
+      r = {}
+      r['id'] = self.id
+      r['url_photo'] = self.url_photo
+      t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+      t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+      r['created_at'] =  int(t2)      
+      return r
 
 class user_online(models.Model):
     user = models.ForeignKey(user_base)

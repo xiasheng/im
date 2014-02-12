@@ -12,7 +12,11 @@ UPLOAD_FILE_PATH = '/var/www/files/'
 UPLOAD_BIG_IMAGE_PATH = UPLOAD_FILE_PATH + 'i/b/'
 UPLOAD_SMALL_IMAGE_PATH = UPLOAD_FILE_PATH + 'i/s/'
 UPLOAD_AUDIO_PATH = UPLOAD_FILE_PATH + 'a/'
+UPLOAD_PROFILE_IMAGE_PATH = UPLOAD_FILE_PATH + 'p/i/'
+UPLOAD_PROFILE_PHOTO_PATH = UPLOAD_FILE_PATH + 'p/p/'
 SIZE_SMALL_IMAGE = 60
+
+ADDR_SERVER = '192.168.77.160'
 
 def SaveImage(file):
     ext = ''
@@ -29,9 +33,26 @@ def SaveImage(file):
     os.rename(tmpname, filename_b)  
     os.system('convert %s -resize %d %s' %(filename_b, SIZE_SMALL_IMAGE, filename_s))
     
-    url_pic_b = 'http://192.168.77.160/f/i/b/' + hashname
-    url_pic_s = 'http://192.168.77.160/f/i/s/' + hashname
+    url_pic_b = 'http://' + ADDR_SERVER + '/f/i/b/' + hashname
+    url_pic_s = 'http://' + ADDR_SERVER + '/f/i/s/' + hashname
     return (url_pic_b, url_pic_s, hashname)
+
+def SaveProfileImage(file):
+    ext = ''
+    if '.' in file.name:
+        ext = file.name.split('.')[-1]
+    tmpname = os.path.join(UPLOAD_BIG_IMAGE_PATH, Random_Str(16)) 
+    f = open(tmpname, 'w+')
+    for chunk in file.chunks():
+        f.write(chunk)
+    f.seek(0)
+    hashname = hashlib.md5(f.read()).hexdigest().upper() + '.' + ext
+    filename =  os.path.join(UPLOAD_PROFILE_IMAGE_PATH, hashname) 
+    os.rename(tmpname, filename)  
+    
+    url_image = 'http://' + ADDR_SERVER + '/f/p/i/' + hashname
+    
+    return url_image
   
 def SaveAudio(file):
     ext = ''
@@ -45,7 +66,7 @@ def SaveAudio(file):
     hashname = hashlib.md5(f.read()).hexdigest().upper() + '.' + ext
     filename =  os.path.join(UPLOAD_AUDIO_PATH, hashname) 
     os.rename(tmpname, filename)  
-    url_audio = 'http://192.168.77.160/f/a/' + hashname
+    url_audio = 'http://' + ADDR_SERVER + '/f/a/' + hashname
     return url_audio
   
 

@@ -7,6 +7,7 @@ from view_status import PublishStatus, PublishStatusWithFile, GetStatus, BatchGe
 from view_file import UploadFile, DownloadFile
 from view_comment import AddComment, DelCommentById, GetCommentById, BatchGetCommentByIds, GetCommentDetailByStatusId
 from view_place import GetNearByUserList, GetNearByStatusList, GetNearByPhotoList, GetNearByStatusDetail
+from view_profile import AddProfile, DelProfile, UpdateProfile, ShowProfile, UploadProfileImage
 
 admin.autodiscover()
 
@@ -24,6 +25,15 @@ urlpatterns = patterns('',
     url(r'^auth/login/$', Login),
     url(r'^auth/logout/$', Logout),
     url(r'^auth/external/$', ExternalAuth),
+    
+    url(r'^profile/add/$', AddProfile),
+    url(r'^profile/del/$', DelProfile),
+    url(r'^profile/update/$', UpdateProfile),
+    url(r'^profile/show/$', ShowProfile),
+    url(r'^profile/image/upload/$', UploadProfileImage),
+    url(r'^profile/photo/add/$', Login),
+    url(r'^profile/photo/del/$', Login),
+    url(r'^profile/photo/show/$', Login),
 
     url(r'^status/publish/text/$', PublishStatus),
     url(r'^status/publish/withfile/$', PublishStatusWithFile),
