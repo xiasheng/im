@@ -94,7 +94,8 @@ def ShowProfile(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _user = user_base.objects.get(id=_uid)
+        _userid = request.REQUEST.get('uid', _uid)
+        _user = user_base.objects.get(id=_userid)
         
         _profiles = user_profile.objects.filter(user=_user)
           
