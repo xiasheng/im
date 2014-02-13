@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from myapp.models import user_base, status, file_status
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
-from view_file import SaveImage, SaveAudio
+from view_file import SaveFile
 import lbs
 import thread
 
@@ -48,10 +48,10 @@ def PublishStatusWithFile(request):
         
         if _type == 'image':
             _stype = 2
-            (_url_pic, _url_pic_tn, _fid) = SaveImage(_file)
+            (_fid, _url_pic, _url_pic_tn) = SaveFile(_file, 'StatusImage')
         elif _type == 'audio':
             _stype = 3
-            _url_audio = SaveAudio(_file)
+            (_fid, _url_audio, _url_null)  = SaveFile(_file, 'StatusAudio')
         
         _status = status(user=_user, text=_text, lat=_lat, lng=_lng, type=_stype)
         _status.save()

@@ -53,7 +53,8 @@ class user_profile(models.Model):
 
 class user_profile_photowall(models.Model):
     profile = models.ForeignKey(user_profile)
-    url_photo = models.CharField(max_length=128)
+    url_photo_b = models.CharField(max_length=128)
+    url_photo_s = models.CharField(max_length=128)
     created_at = models.DateField(auto_now_add=True)
 
     def __unicode__(self):
@@ -62,7 +63,8 @@ class user_profile_photowall(models.Model):
     def toJSON(self):
       r = {}
       r['id'] = self.id
-      r['url_photo'] = self.url_photo
+      r['url_b'] = self.url_photo_b
+      r['url_s'] = self.url_photo_s
       t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
       t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
       r['created_at'] =  int(t2)      

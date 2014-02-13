@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from myapp.models import user_base, user_profile, user_profile_photowall
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
-from view_file import SaveProfileImage
+from view_file import SaveFile, DeleteFile
 
 def AddProfile(request):
     ret = {'retcode': 0, 'info': 'success'}
@@ -133,9 +133,9 @@ def UploadProfileImage(request):
         
         _profile = user_profile.objects.filter(user=_user, id=_pid)
         if len(_profile) == 1:
-            _url_image = SaveProfileImage(_file)
-            ret['url_image'] = _url_image
-            _profile.update(url_image=_url_image)
+            (_fid, _url1, _url2) = SaveFile(_file, 'ProfileImage')
+            ret['url_image'] = _url1
+            _profile.update(url_image=_url1)
         else:
             ret['retcode'] = -1
             ret['info'] = 'no such profile'
@@ -149,3 +149,79 @@ def UploadProfileImage(request):
         ret['info'] = 'UploadProfileImage failed'
 
     return MyHttpResponse(ret)
+    
+def AddProfilePhoto(request):
+    ret = {'retcode': 0, 'info': 'success'}   
+  
+    try:
+        _uid = GetAuthUserId(request)
+        _user = user_base(id=_uid)
+        _file = request.FILES.get('file')
+        _pid = request.REQUEST.get('pid')
+        
+        _profile = user_profile.objects.get(user=_user, id=_pid)
+        (_fid, _url1, _url2) = SaveFile(_file, 'ProfilePhoto')
+        ret['url_b'] = _url1
+        ret['url_s'] = _url2
+        ret['fid'] = _fid
+            
+        _profile_photo = user_profile_photowall(profile=_profile, url_photo_b=_url1, url_photo_s=_url2)
+        _profile_photo.save()
+        ret['id'] = _profile_photo.id
+             
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'auth failed'
+    except :
+        ret['retcode'] = -1
+        ret['info'] = 'AddProfilePhoto failed'
+
+    return MyHttpResponse(ret)  
+    
+def DelProfilePhoto(request):
+    ret = {'retcode': 0, 'info': 'success'}   
+  
+    try:
+        _uid = GetAuthUserId(request)
+        _user = user_base(id=_uid)
+        _pid = request.REQUEST.get('pid')
+        
+        _photo = user_profile_photowall.objects.get(id=_pid)
+        _fid = _photo.url_photo_b.split('/')[-1]
+        DeleteFile(_fid, 'ProfilePhoto')
+        _photo.delete()
+
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'auth failed'
+    except AssertionError:
+        ret['retcode'] = -1
+        ret['info'] = 'DelProfilePhoto failed'
+
+    return MyHttpResponse(ret)      
+    
+def ShowProfilePhoto(request):
+    ret = {'retcode': 0, 'info': 'success'}
+    try:
+        _uid = GetAuthUserId(request)
+        _userid = request.REQUEST.get('uid', _uid)
+        _pid = request.REQUEST.get('pid')
+        
+        _user = user_base(id=_userid)
+        _profile = user_profile(user=_user, id=_pid)
+        _photos = user_profile_photowall.objects.filter(profile=_profile)
+          
+        _list_photos = []
+        for p in _photos:
+            _list_photos.append(p.toJSON())
+              
+        ret['photos'] = _list_photos
+                 
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'unauthorized'
+    except :
+        ret['retcode'] = -1
+        ret['info'] = 'ShowProfilePhoto failed'          
+
+    return MyHttpResponse(ret)     
