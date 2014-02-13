@@ -204,11 +204,9 @@ def ShowProfilePhoto(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _userid = request.REQUEST.get('uid', _uid)
         _pid = request.REQUEST.get('pid')
         
-        _user = user_base(id=_userid)
-        _profile = user_profile(user=_user, id=_pid)
+        _profile = user_profile(id=_pid)
         _photos = user_profile_photowall.objects.filter(profile=_profile)
           
         _list_photos = []
