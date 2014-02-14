@@ -48,7 +48,7 @@ def ShowFriends(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _userid = request.REQUEST.get('id', _uid)
+        _userid = request.REQUEST.get('uid', _uid)
         _user = user_base(id=_userid)
         _friends = friends.objects.filter(user=_user)
         _fids = []
@@ -75,7 +75,7 @@ def ShowFans(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _userid = request.REQUEST.get('id', _uid)
+        _userid = request.REQUEST.get('uid', _uid)
         _user = user_base(id=_userid)
         _fans = friends.objects.filter(friend_id=_userid)
         _fids = []
