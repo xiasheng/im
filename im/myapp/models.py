@@ -6,10 +6,19 @@ class user_base(models.Model):
     phonenum = models.CharField(max_length=11)
     password = models.CharField(max_length=64)
     created_at = models.DateField(auto_now_add=True)
-    default_profile_id = models.IntegerField()
+    default_profile_id = models.IntegerField(default=0)
 
     def __unicode__(self):
     	return 'user_base'
+    	
+    def toJSON(self):
+      r = {'uid': self.id, 'name': '', 'url_image': ''}
+      if self.default_profile_id > 0:
+        _profile = user_profile.objects.get(id=self.default_profile_id)
+        r['name'] = _profile.name
+        r['url_image'] = _profile.url_image
+      return r  
+      	  
 
 class user_detail(models.Model):
     user = models.ForeignKey(user_base)
@@ -49,6 +58,13 @@ class user_profile(models.Model):
       t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
       t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
       r['created_at'] =  int(t2)      
+      return r
+
+    def toJSONBasic(self):
+      r = {}
+      r['uid'] = self.user.id 
+      r['name'] = self.name
+      r['url_image'] = self.url_image
       return r
 
 class user_profile_photowall(models.Model):
@@ -156,7 +172,7 @@ class comment(models.Model):
 
     def toJSON(self):
         r = {}
-        r['uid'] = self.user.id
+        r['user'] = self.user.toJSON()
         r['sid'] = self.status.id
         r['text'] = self.text
         t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  

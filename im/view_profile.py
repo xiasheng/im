@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from myapp.models import user_base, user_profile, user_profile_photowall
+from myapp.models import user_base, user_profile, user_profile_photowall, friends
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
 from view_file import SaveFile, DeleteFile
@@ -28,13 +28,16 @@ def AddProfile(request):
         _profile.save()
         ret['id'] = _profile.id
         
+        if _num == 0:
+          _isDefault = 1
+        
         if _isDefault == 1:
-          _user.update(default_profile_id=_profile.id)
+          user_base.objects.filter(id=_uid).update(default_profile_id=_profile.id)
          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except :
+    except:
         ret['retcode'] = -1
         ret['info'] = 'AddProfile failed'          
 
@@ -110,8 +113,8 @@ def ShowProfile(request):
             _list_profiles.append(pp)
               
         ret['profiles'] = _list_profiles
-        ret['num_fans'] = 0
-        ret['num_friends'] = 0
+        ret['num_fans'] = friends.objects.filter(friend_id=_userid).count()
+        ret['num_friends'] = friends.objects.filter(user=_user).count()
          
     except AuthException:
         ret['retcode'] = -2

@@ -34,12 +34,13 @@ def GetNearByUserList(request):
             if _uid == s[0]:
                 _size -= 1
                 continue
-            ret['users'].append({'uid':s[0], 'distance':s[1]}) 
-        ret['size'] = _size         
+            _user = user_base.objects.get(id=s[0])    
+            ret['users'].append({'user':_user.toJSON(), 'distance':s[1]}) 
+        ret['size'] = _size
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except:
+    except AssertionError:
         ret['retcode'] = -1
         ret['info'] = 'GetNearByUserList failed'          
 

@@ -137,7 +137,7 @@ def GetCommentDetailByStatusId(request):
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except IOError:
+    except :
         ret['retcode'] = -1
         ret['info'] = 'GetCommentListByStatusId failed'          
 
