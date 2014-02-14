@@ -71,6 +71,33 @@ def ShowFriends(request):
 
     return MyHttpResponse(ret)
 
+def ShowFans(request):
+    ret = {'retcode': 0, 'info': 'success'}
+    try:
+        _uid = GetAuthUserId(request)
+        _userid = request.REQUEST.get('id', _uid)
+        _user = user_base(id=_userid)
+        _fans = friends.objects.filter(friend_id=_userid)
+        _fids = []
+        
+        for f in _fans:
+            _fids.append(f.user.id)    
+        
+        _users = user_base.objects.filter(pk__in=_fids)   
+        _fans = []
+        for u in _users:
+            _fans.append(u.toJSON()) 
+                    
+        ret['fans'] = _fans      
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'unauthorized'
+    except:
+        ret['retcode'] = -1
+        ret['info'] = 'ShowFans failed'          
+
+    return MyHttpResponse(ret)
+
 
 def SearchFriends(request):
     ret = {'retcode': 0, 'info': 'success'}

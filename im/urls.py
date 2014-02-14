@@ -8,7 +8,7 @@ from view_file import UploadFile, DownloadFile
 from view_comment import AddComment, DelCommentById, GetCommentById, BatchGetCommentByIds, GetCommentDetailByStatusId
 from view_place import GetNearByUserList, GetNearByStatusList, GetNearByPhotoList, GetNearByStatusDetail
 from view_profile import AddProfile, DelProfile, UpdateProfile, ShowProfile, UploadProfileImage, AddProfilePhoto, DelProfilePhoto, ShowProfilePhoto
-from view_friendship import AddFriend, DelFriend, ShowFriends, SearchFriends
+from view_friendship import AddFriend, DelFriend, ShowFriends, ShowFans, SearchFriends
 
 admin.autodiscover()
 
@@ -61,6 +61,7 @@ urlpatterns = patterns('',
     url(r'^friends/add/$', AddFriend),
     url(r'^friends/del/$', DelFriend),
     url(r'^friends/show/$', ShowFriends),
+    url(r'^fans/show/$', ShowFans),
     url(r'^friends/search/$', SearchFriends),
 
     #url(r'^admin/', include(admin.site.urls)),
