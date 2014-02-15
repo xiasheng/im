@@ -47,15 +47,21 @@ def DelProfile(request):
     ret = {'retcode': 0, 'info': 'success'}
     try:
         _uid = GetAuthUserId(request)
-        _pid = request.REQUEST.get('pid')
-        _user = user_base(id=_uid)
+        _pid = int (request.REQUEST.get('pid'))
+        _user = user_base.objects.get(id=_uid)
 
         user_profile.objects.get(user=_user, id=_pid).delete()
+
+        if _pid == _user.default_profile_id:
+            _profiles = user_profile.objects.filter(user=_user)
+            for p in _profiles:
+                user_base.objects.filter(id=_uid).update(default_profile_id=p.id)
+                break;
          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except:
+    except IOError:
         ret['retcode'] = -1
         ret['info'] = 'DelProfile failed'          
 

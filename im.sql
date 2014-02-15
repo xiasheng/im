@@ -1,3 +1,7 @@
+
+#init database
+drop database im;
+create database im;
 use im;
 
 #create admin account
@@ -31,16 +35,28 @@ BEGIN
 END $$
 DELIMITER ;
 
+#restart mysql
+service mysql restart
 
+#mysql character set 
+SHOW VARIABLES LIKE 'character%';
+SHOW VARIABLES LIKE 'collation_%';
+SHOW CREATE DATABSE ddd;
+SHOW CREATE TABLE ttt;
 
-set character_set_client=utf8;
-set character_set_connection=utf8;
-set character_set_database=utf8;
-set character_set_results=utf8;
-set character_set_server=utf8;     
-    
+#set default utf8
+#/etc/mysql/my.cnf
+[client]
+default-character-set=utf8
 
-    
+[mysqld]
+character-set-server=utf8
+collation-server=utf8_general_ci
+
+[mysql]
+default-character-set=utf8
+
+#alter character    
 ALTER TABLE django_content_type CONVERT TO CHARACTER SET utf8;
 ALTER TABLE django_session CONVERT TO CHARACTER SET utf8;
 ALTER TABLE myapp_account_thirdparty CONVERT TO CHARACTER SET utf8;
