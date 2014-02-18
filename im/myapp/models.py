@@ -12,7 +12,7 @@ class user_base(models.Model):
     	return 'user_base'
     	
     def toJSON(self):
-      r = {'uid': self.id, 'name': '', 'url_image': ''}
+      r = {'uid': self.id, 'name': '', 'url_image': '', 'phonenum':self.phonenum}
       if self.default_profile_id > 0:
         _profile = user_profile.objects.get(id=self.default_profile_id)
         r['name'] = _profile.name
