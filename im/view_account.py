@@ -70,7 +70,7 @@ def RegisterConfirm(request):
             ret['access_token'] = tokens['at']
             ret['refresh_token'] = tokens['rt']
             ret['uid'] = tokens['uid']
-    except AssertionError:
+    except:
         ret['retcode'] = -1
         ret['info'] = 'register user failed'
 
@@ -157,5 +157,26 @@ def UpdateThirdPartyAccount(request):
     except:
         ret['retcode'] = -1
         ret['info'] = 'UpdateThirdPartyAccount failed'          
+
+    return MyHttpResponse(ret)
+
+
+def ResetPassword(request):
+    ret = {'retcode': 0, 'info': 'success'}
+    try:
+        _uid = GetAuthUserId(request)
+        _user = user_base.objects.get(id=_uid)        
+        _old_password = hashlib.md5(request.REQUEST.get('oldpwd')).hexdigest().upper()
+        _new_password = hashlib.md5(request.REQUEST.get('newpwd')).hexdigest().upper()
+
+        if _old_password != _user.password:
+            ret['retcode'] = -1
+            ret['info'] = 'old password error'
+        else:
+            user_base.objects.filter(id=_uid).update(password=_new_password)
+
+    except:
+        ret['retcode'] = -1
+        ret['info'] = 'ResetPassword failed'
 
     return MyHttpResponse(ret)

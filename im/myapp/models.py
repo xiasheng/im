@@ -138,6 +138,17 @@ class status(models.Model):
         r = dict(r, **_file.toJSON())
       return r
 
+    def toJSON2(self):
+      r = {}
+      r['user'] = self.user.toJSON()
+      t1 = self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
+      t2 = time.mktime(time.strptime(t1, "%Y-%m-%d %H:%M:%S"))
+      r['created_at'] =  int(t2)
+      if self.type > 1:
+        _file =  file_status.objects.get(status=self)
+        r = dict(r, **_file.toJSON())
+      return r
+
 class file_status(models.Model):
     user = models.ForeignKey(user_base)
     status = models.ForeignKey(status)

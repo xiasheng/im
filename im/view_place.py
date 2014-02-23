@@ -137,7 +137,7 @@ def GetNearByStatusDetail(request):
     return MyHttpResponse(ret) 
 
 
-def GetNearByPhotoList(request):
+def GetNearByPhotoList_LBS(request):
     ret = {'retcode': 0, 
            'info': 'success',
            'size' : 0,
@@ -185,4 +185,36 @@ def GetNearByPhotoList(request):
         ret['retcode'] = -1
         ret['info'] = 'GetNearByPhotoList failed'          
 
-    return MyHttpResponse(ret) 
+    return MyHttpResponse(ret)
+
+
+def GetNearByPhotoList(request):
+    ret = {'retcode': 0, 
+           'info': 'success',
+           'size' : 0,
+           'hasmore' : 1,
+           }
+    try:
+        _uid = GetAuthUserId(request)
+        _user = user_base(id=_uid)
+        _page_num = int ( request.REQUEST.get('pagenum', 0))
+        _statuses = status.objects.filter(type=2).exclude(user=_user).order_by('-id')[_page_num*10:(_page_num+1)*10]
+        _photos = []
+        for s in _statuses:
+            _photos.append(s.toJSON2())
+              
+        ret['photos'] = _photos
+        ret['size'] = len(_photos)
+        ret['pagenum'] = _page_num
+        if 10 == len(_photos):
+            ret['hasmore'] = 1
+        else:
+            ret['hasmore'] = 0
+    except AuthException:
+        ret['retcode'] = -2
+        ret['info'] = 'unauthorized'
+    except:
+        ret['retcode'] = -1
+        ret['info'] = 'GetNearByPhotoList failed'          
+
+    return MyHttpResponse(ret)    
