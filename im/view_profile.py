@@ -4,6 +4,7 @@ from myapp.models import user_base, user_profile, user_profile_photowall, friend
 from view_auth import GetAuthUserId, AuthException
 from view_common import MyHttpResponse
 from view_file import SaveFile, DeleteFile
+from view_status import status
 
 def AddProfile(request):
     ret = {'retcode': 0, 'info': 'success'}
@@ -121,11 +122,16 @@ def ShowProfile(request):
         ret['profiles'] = _list_profiles
         ret['num_fans'] = friends.objects.filter(friend_id=_userid).count()
         ret['num_friends'] = friends.objects.filter(user=_user).count()
-         
+        ret['status'] = {}
+        statuses = status.objects.filter(user=_user).order_by('-id')[0:1]
+        for s in statuses:
+          ret['status'] = s.toJSON()
+          break
+          
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except :
+    except AssertionError:
         ret['retcode'] = -1
         ret['info'] = 'ShowProfile failed'          
 
