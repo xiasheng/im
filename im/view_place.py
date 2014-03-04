@@ -201,7 +201,7 @@ def GetNearByPhotoList(request):
         _statuses = status.objects.filter(type=2).exclude(user=_user).order_by('-id')[_page_num*10:(_page_num+1)*10]
         _photos = []
         for s in _statuses:
-            _photos.append(s.toJSON2())
+            _photos.append(s.toJSON())
               
         ret['photos'] = _photos
         ret['size'] = len(_photos)

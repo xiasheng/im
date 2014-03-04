@@ -131,7 +131,7 @@ def ShowProfile(request):
     except AuthException:
         ret['retcode'] = -2
         ret['info'] = 'unauthorized'
-    except AssertionError:
+    except :
         ret['retcode'] = -1
         ret['info'] = 'ShowProfile failed'          
 
